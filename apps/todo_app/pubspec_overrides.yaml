@@ -1,0 +1,4 @@
+# melos_managed_dependency_overrides: ui_elements
+dependency_overrides:
+  ui_elements:
+    path: ../../packages/ui_elements

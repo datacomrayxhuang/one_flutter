@@ -152,6 +152,12 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "ui_elements",
+      "rootUri": "../../../packages/ui_elements",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
       "name": "vector_math",
       "rootUri": "file:///Users/rayhuang/.pub-cache/hosted/pub.dev/vector_math-2.1.4",
       "packageUri": "lib/",
@@ -170,7 +176,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-04-15T08:19:12.738193Z",
+  "generated": "2025-04-15T09:35:19.467969Z",
   "generator": "pub",
   "generatorVersion": "3.5.3",
   "flutterRoot": "file:///Users/rayhuang/development/flutter",
