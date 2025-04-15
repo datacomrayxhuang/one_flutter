@@ -2,6 +2,8 @@ name: one_flutter
 publish_to: none
 environment:
   sdk: ">=3.5.3"
+  flutter: 3.24.3
 workspace:
-  - apps/todo_app
   - packages/ui_elements
+dev_dependencies:
+  melos: ^6.3.2
