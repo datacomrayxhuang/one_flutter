@@ -164,13 +164,25 @@
       "languageVersion": "3.3"
     },
     {
-      "name": "todo_app",
+      "name": "one_flutter",
       "rootUri": "../",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "todo_app",
+      "rootUri": "../apps/todo_app",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "ui_elements",
+      "rootUri": "../packages/ui_elements",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-04-15T07:54:07.684713Z",
+  "generated": "2025-04-15T08:10:19.679282Z",
   "generator": "pub",
   "generatorVersion": "3.5.3",
   "flutterRoot": "file:///Users/rayhuang/development/flutter",

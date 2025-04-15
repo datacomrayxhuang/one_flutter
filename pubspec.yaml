@@ -1,0 +1,7 @@
+name: one_flutter
+publish_to: none
+environment:
+  sdk: ">=3.5.3"
+workspace:
+  - apps/todo_app
+  - packages/ui_elements
