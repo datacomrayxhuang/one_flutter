@@ -7,6 +7,7 @@ import 'package:todo_app/screens/add_todo.dart';
 import 'package:todo_app/blocs/action_todo/action_todo_bloc.dart';
 import 'package:todo_app/blocs/home/home_bloc.dart';
 import 'package:todo_app/widgets/action_todo_modal_bottom_sheet.dart';
+import 'package:ui_elements/styles/color_constants.dart';
 import 'package:ui_elements/widgets/custom_app_bar.dart';
 import 'package:ui_elements/widgets/expandable_text_tile.dart';
 import 'package:ui_elements/widgets/loading_view.dart';
@@ -110,7 +111,10 @@ class HomePage extends StatelessWidget {
       actions: [
         if (!homeState.isLoading && homeState.todos.isEmpty)
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(
+              Icons.refresh,
+              color: kWhiteColor,
+            ),
             onPressed: () =>
                 context.read<HomeBloc>().add(const HomeFetchTodosRequested()),
           ),
