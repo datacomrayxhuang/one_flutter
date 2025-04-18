@@ -7,7 +7,10 @@ import 'package:todo_app/utils/result.dart';
 class TodoRepository {
   static final TodoRepository _instance = TodoRepository._internal();
 
-  factory TodoRepository() {
+  SecureStorage? _secureStorage;
+
+  factory TodoRepository({SecureStorage? secureStorage}) {
+    _instance._secureStorage = secureStorage ?? SecureStorage();
     return _instance;
   }
 
@@ -18,7 +21,7 @@ class TodoRepository {
       // Simulate a network call
       await Future.delayed(const Duration(seconds: 1));
 
-      final String? todos = await SecureStorage().read(key: 'todos');
+      final String? todos = await _secureStorage!.read(key: 'todos');
       if (todos == null) {
         return Result.ok([]);
       }
@@ -61,7 +64,7 @@ class TodoRepository {
           todosList.add(newTodo);
 
           // Save the updated list of todos
-          SecureStorage().write(
+          _secureStorage!.write(
             key: 'todos',
             value: jsonEncode(todosList.map((todo) => todo.toJson()).toList()),
           );
@@ -70,6 +73,50 @@ class TodoRepository {
         case Error<List<TodoModel>>():
           return Result.error(todos.error);
       }
+    } catch (e) {
+      return Result.error(Exception('An error occurred: $e'));
+    }
+  }
+
+  Future<Result<bool>> deleteTodo(String id) async {
+    try {
+      // Simulate a network call
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Fetch the existing todos
+      final Result<List<TodoModel>> todos = await getTodos();
+
+      switch (todos) {
+        case Ok<List<TodoModel>>():
+          final List<TodoModel> todosList = todos.value;
+          final updatedTodos =
+              todosList.where((todo) => todo.id != id).toList();
+
+          // Save the updated list of todos
+          await _secureStorage!.write(
+            key: 'todos',
+            value:
+                jsonEncode(updatedTodos.map((todo) => todo.toJson()).toList()),
+          );
+
+          return Result.ok(true);
+        case Error<List<TodoModel>>():
+          return Result.error(todos.error);
+      }
+    } catch (e) {
+      return Result.error(Exception('An error occurred: $e'));
+    }
+  }
+
+  Future<Result<bool>> deleteAllTodos() async {
+    try {
+      // Simulate a network call
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Clear all todos
+      await _secureStorage!.delete(key: 'todos');
+
+      return Result.ok(true);
     } catch (e) {
       return Result.error(Exception('An error occurred: $e'));
     }
