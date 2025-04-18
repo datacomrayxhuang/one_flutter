@@ -1,5 +1,5 @@
 /// This is copied from Flutter.dev
-/// 
+///
 /// Utility class that simplifies handling errors.
 ///
 /// Return a [Result] from a function to indicate success or failure.

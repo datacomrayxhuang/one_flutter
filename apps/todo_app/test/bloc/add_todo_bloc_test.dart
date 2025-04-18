@@ -1,6 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-// ignore: depend_on_referenced_packages
 import 'package:mocktail/mocktail.dart';
 import 'package:todo_app/repository/todo_repository.dart';
 import 'package:todo_app/utils/result.dart';

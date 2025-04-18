@@ -1,24 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:todo_app/models/todo_model.dart';
 import 'package:todo_app/screens/add_todo.dart';
 import 'package:todo_app/view_models/home/home_bloc.dart';
 import 'package:ui_elements/widgets/custom_app_bar.dart';
+import 'package:ui_elements/widgets/custom_button.dart';
+import 'package:ui_elements/widgets/expandable_text_tile.dart';
+import 'package:ui_elements/widgets/loading_view.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   static const String routeName = '/home';
 
-  Widget get _loadingView {
-    return const Center(
-      child: CircularProgressIndicator(),
-    );
-  }
-
-  Widget get _emptyView {
-    return const Center(
-      child: Text('No todos available'),
+  void _onTodoTileLongPressed(BuildContext context, {required TodoModel todo}) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Actions',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CustomButton.primary(
+                  text: const Text('Mark as complete'),
+                  onPressed: () {},
+                ),
+                const SizedBox(height: 16),
+                CustomButton.secondary(
+                  text: const Text('Delete'),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -27,13 +57,22 @@ class HomePage extends StatelessWidget {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (BuildContext context, HomeState homeState) {
         return Scaffold(
-          appBar: const CustomAppBar(
+          appBar: CustomAppBar(
             title: 'Home',
             hasBackButton: false,
+            actions: [
+              if (!homeState.isLoading && homeState.todos.isEmpty)
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () => context
+                      .read<HomeBloc>()
+                      .add(const HomeFetchTodosRequested()),
+                ),
+            ],
           ),
           body: homeState.isLoading
-              ? _loadingView
-              : RefreshIndicator(
+              ? const LoadingView()
+              : RefreshIndicator.adaptive(
                   onRefresh: () async => context
                       .read<HomeBloc>()
                       .add(const HomeFetchTodosRequested()),
@@ -43,18 +82,32 @@ class HomePage extends StatelessWidget {
                           itemBuilder: (BuildContext context, int index) {
                             final bool isLastItem =
                                 index == homeState.todos.length - 1;
-                            final Widget tile = ListTile(
-                              title: Text(homeState.todos[index].title),
-                              subtitle:
-                                  Text(homeState.todos[index].description),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  // Handle delete action
-                                },
+                            final todo = homeState.todos[index];
+
+                            final Widget tile = ExpandableTextTile(
+                              title: todo.title,
+                              titleTextStyle: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                decoration: todo.isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
+                              ),
+                              description: todo.description,
+                              descriptionTextStyle: TextStyle(
+                                fontSize: 14,
+                                decoration: todo.isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
+                              ),
+                              onLongPress: () => _onTodoTileLongPressed(
+                                context,
+                                todo: todo,
                               ),
                             );
 
+                            // Add padding to the last item to prevent it
+                            // from being cut off by the floating action button
                             if (isLastItem) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 72),
@@ -65,7 +118,7 @@ class HomePage extends StatelessWidget {
                             return tile;
                           },
                         )
-                      : _emptyView,
+                      : const _HomeEmptyView(),
                 ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => context.push(AddTodoPage.routeName).then(
@@ -80,6 +133,48 @@ class HomePage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// A widget that displays a message when there are no todos available.
+/// It shows an icon and a message prompting the user to add their first todo.
+/// This widget is used in the [HomePage] when the todo list is empty.
+/// It is a private widget and should not be used outside of this file.
+class _HomeEmptyView extends StatelessWidget {
+  const _HomeEmptyView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.inbox,
+            size: 80,
+            color: Colors.grey,
+          ),
+          SizedBox(height: 16),
+          Text(
+            'No todos available',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey,
+            ),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Tap the button below to add your first todo!',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }
