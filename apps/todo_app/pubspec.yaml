@@ -38,6 +38,9 @@ dependencies:
   ui_elements:
     path: ../../packages/ui_elements
   go_router: ^14.8.1
+  equatable: ^2.0.7
+  flutter_bloc: ^9.1.0
+  flutter_secure_storage: ^9.2.4
 
 dev_dependencies:
   flutter_test:
