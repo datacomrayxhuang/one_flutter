@@ -1,22 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:todo_app/view_models/add_todo/add_todo_bloc.dart';
+import 'package:todo_app/blocs/add_todo/add_todo_bloc.dart';
 import 'package:ui_elements/widgets/custom_app_bar.dart';
 import 'package:ui_elements/widgets/custom_button.dart';
 import 'package:ui_elements/widgets/custom_text_field.dart';
 import 'package:ui_elements/widgets/error_tile.dart';
 
-/// A page that allows the user to add a new todo.
-/// This page is used to add a new todo to the list of todos
-/// It shows a form with a title and description text fields
-/// and a save button to save the todo.
-/// It also shows a clear button to clear the text fields
-/// and a loading indicator when the todo is being added.
-/// The page is implemented using the Bloc pattern
-/// and the state is managed by the [AddTodoBloc].
-/// The page is registered in the [GoRouter]
-/// and can be navigated to using the [routeName].
+/// The `AddTodoPage` widget allows users to add a new to-do item to the list.
+///
+/// This page provides a form with fields for entering the title and description of the to-do.
+/// It also includes a save button to submit the to-do and a clear button to reset the form.
+/// The page uses the `AddTodoBloc` for state management and integrates with the `GoRouter`
+/// for navigation.
+///
+/// ### Features:
+/// - **Title Field**: A text field for entering the title of the to-do.
+/// - **Description Field**: A text field for entering the description of the to-do.
+/// - **Save Button**: A button to save the to-do. It is disabled if the fields are empty.
+/// - **Clear Button**: A button to clear the form fields.
+/// - **Loading Indicator**: Displays a loading indicator when the to-do is being saved.
+/// - **Success View**: Displays a success message after the to-do is added successfully.
+///
+/// ### State Management:
+/// - The widget listens to the `AddTodoBloc` to update its UI based on the current state:
+///   - `AddTodoStatus.initial`: Displays the form for adding a to-do.
+///   - `AddTodoStatus.success`: Displays a success message after the to-do is added.
+///
+/// ### Dependencies:
+/// - `AddTodoBloc`: Manages the state of the to-do addition process.
+/// - `CustomAppBar`: Displays the app bar with a title and optional actions.
+/// - `CustomTextField`: Used for the title and description input fields.
+/// - `CustomButton`: Used for the save and clear buttons.
+/// - `ErrorTile`: Displays error messages when the to-do addition fails.
+///
+/// ### Widgets Used:
+/// - `CustomAppBar`: Displays the app bar with a title, back button, and clear button.
+/// - `CustomTextField`: Provides input fields for the title and description.
+/// - `CustomButton`: Provides buttons for saving and clearing the form.
+/// - `ErrorTile`: Displays error messages.
+/// - `_AddTodoSuccessView`: Displays a success message after the to-do is added.
+///
+/// ### Example:
+/// ```dart
+/// MaterialApp(
+///   home: BlocProvider(
+///     create: (context) => AddTodoBloc(todoRepository: TodoRepository()),
+///     child: const AddTodoPage(),
+///   ),
+/// );
+/// ```
+///
+/// ### Parameters:
+/// - `key`: An optional key for the widget.
+///
+/// ### Actions:
+/// - **Save To-Do**: The save button submits the to-do to the `AddTodoBloc`.
+/// - **Clear Form**: The clear button resets the form fields and updates the state.
+/// - **Dismiss Keyboard**: Tapping outside the form dismisses the keyboard.
+///
+/// ### Notes:
+/// - The save button is disabled if the title or description fields are empty.
+/// - The page automatically transitions to the success view after the to-do is added successfully.
+/// - The clear button is only visible when the form fields are not empty.
+///
+/// ### Success View:
+/// - Displays a check icon, a success message, and a button to return to the previous screen.
 class AddTodoPage extends StatefulWidget {
   const AddTodoPage({super.key});
 
@@ -57,6 +106,69 @@ class _AddTodoPageState extends State<AddTodoPage> {
   /// Emit the AddTodoSaveButtonPressed event to the AddTodoBloc to save the todo.
   void _onSaveButtonPressed() {
     context.read<AddTodoBloc>().add(const AddTodoSaveButtonPressed());
+  }
+
+  /// Builds the app bar with a title, back button, and clear button.
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, AddTodoState addTodoState) {
+    return CustomAppBar(
+      title: 'Add To-Do',
+      hasBackButton: true,
+      actions: [
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 300),
+          opacity: addTodoState.hasClearButton ? 1 : 0,
+          child: IconButton(
+            icon: Icon(
+              Icons.clear,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
+            onPressed:
+                addTodoState.hasClearButton ? _onClearButtonPressed : null,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the body of the page, showing the form or success view.
+  Widget _buildBody(BuildContext context, AddTodoState addTodoState) {
+    return SizedBox.expand(
+      child: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.opaque,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: switch (addTodoState.status) {
+              AddTodoStatus.initial => _buildForm(context, addTodoState),
+              AddTodoStatus.success => const _AddTodoSuccessView(),
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds the form with title, description, save button, and error message.
+  Widget _buildForm(BuildContext context, AddTodoState addTodoState) {
+    return Column(
+      children: [
+        _getTitleTextField(isReadOnly: addTodoState.isLoading),
+        const SizedBox(height: 16),
+        _getDescriptionTextField(isReadOnly: addTodoState.isLoading),
+        const SizedBox(height: 16),
+        _getSaveButton(isLoading: addTodoState.isLoading),
+        if (addTodoState.errorMessage.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: ErrorTile.red(
+              errorMessage: addTodoState.errorMessage,
+            ),
+          ),
+      ],
+    );
   }
 
   /// Get the title text field.
@@ -133,74 +245,8 @@ class _AddTodoPageState extends State<AddTodoPage> {
     return BlocBuilder<AddTodoBloc, AddTodoState>(
       builder: (context, addTodoState) {
         return Scaffold(
-          // Render the app bar with a title and a back button
-          // and a clear button if there is text in the text fields.
-          appBar: CustomAppBar(
-            title: 'Add To-Do',
-            hasBackButton: true,
-            actions: [
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: addTodoState.hasClearButton ? 1 : 0,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                  onPressed: addTodoState.hasClearButton
-                      ? _onClearButtonPressed
-                      : null,
-                ),
-              ),
-            ],
-          ),
-          body: SizedBox.expand(
-            child: GestureDetector(
-              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-              behavior: HitTestBehavior.opaque,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: switch (addTodoState.status) {
-                    /// Show inital view if the todo is being added
-                    AddTodoStatus.initial => Column(
-                        children: [
-                          /// Show the title text field
-                          _getTitleTextField(
-                            isReadOnly: addTodoState.isLoading,
-                          ),
-                          const SizedBox(height: 16),
-
-                          /// Show the description text field
-                          _getDescriptionTextField(
-                            isReadOnly: addTodoState.isLoading,
-                          ),
-                          const SizedBox(height: 16),
-
-                          /// Show the save button
-                          _getSaveButton(
-                            isLoading: addTodoState.isLoading,
-                          ),
-
-                          /// Show error message if there is an error
-                          if (addTodoState.errorMessage.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: ErrorTile.red(
-                                errorMessage: addTodoState.errorMessage,
-                              ),
-                            ),
-                        ],
-                      ),
-
-                    /// Show success view if the todo is added successfully
-                    AddTodoStatus.success => const _AddTodoSuccessView(),
-                  },
-                ),
-              ),
-            ),
-          ),
+          appBar: _buildAppBar(context, addTodoState),
+          body: _buildBody(context, addTodoState),
         );
       },
     );

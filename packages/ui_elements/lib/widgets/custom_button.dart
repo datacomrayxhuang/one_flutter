@@ -4,6 +4,72 @@ import 'package:flutter/material.dart';
 import 'package:ui_elements/styles/color_constants.dart';
 import 'package:ui_elements/styles/dimension_constants.dart';
 
+/// A customizable button widget for consistent styling and functionality across the application.
+///
+/// The `CustomButton` widget extends `StatelessWidget` and provides a flexible and reusable button
+/// component with support for primary and secondary styles, icons, and custom configurations.
+///
+/// ### Features:
+/// - **Primary and Secondary Styles**:
+///   - `CustomButton.primary`: A button with a primary style (e.g., blue background, white text).
+///   - `CustomButton.secondary`: A button with a secondary style (e.g., white background, blue text).
+/// - **Icons**:
+///   - Supports leading and trailing icons with customizable spacing.
+/// - **Disabled State**:
+///   - Automatically disables the button when `disabled` is set to `true`.
+/// - **Customizable**:
+///   - Allows customization of text, background color, border, margin, and overlay color.
+///
+/// ### Properties:
+/// - `text` (Widget): The text or widget displayed inside the button.
+/// - `textStyle` (TextStyle): The style of the button text.
+/// - `backgroundColor` (Color): The background color of the button.
+/// - `onPressed` (VoidCallback?): The callback triggered when the button is pressed.
+/// - `disabled` (bool): Determines whether the button is disabled.
+/// - `margin` (EdgeInsetsGeometry): The margin around the button.
+/// - `overlayColor` (Color?): The color displayed when the button is pressed.
+/// - `borderSide` (BorderSide): The border style of the button.
+/// - `leadingIcon` (Widget?): An optional widget displayed before the text.
+/// - `leadingIconSpacingWidget` (Widget): A widget to add spacing between the leading icon and text.
+/// - `trailingIcon` (Widget?): An optional widget displayed after the text.
+/// - `trailingIconSpacingWidget` (Widget): A widget to add spacing between the trailing icon and text.
+///
+/// ### Example Usage:
+/// ```dart
+/// // Primary button with leading icon
+/// CustomButton.primary(
+///   text: const Text('Submit'),
+///   onPressed: () {
+///     print('Primary button pressed');
+///   },
+///   leadingIcon: const Icon(Icons.send),
+/// );
+///
+/// // Secondary button with trailing icon
+/// CustomButton.secondary(
+///   text: const Text('Cancel'),
+///   onPressed: () {
+///     print('Secondary button pressed');
+///   },
+///   trailingIcon: const Icon(Icons.close),
+/// );
+///
+/// // Disabled button
+/// CustomButton.primary(
+///   text: const Text('Disabled'),
+///   onPressed: null,
+///   disabled: true,
+/// );
+/// ```
+///
+/// ### Notes:
+/// - The button automatically adjusts its appearance when disabled (e.g., reduced opacity).
+/// - The `leadingIcon` and `trailingIcon` are optional and can be omitted if not needed.
+/// - The button's height is constrained to `kStandardInteractionHeight` for consistency.
+///
+/// ### Theming:
+/// - The button's colors and styles are derived from constants like `kPrimaryBlueColor` and `kWhiteColor`.
+/// - The border radius is fixed at 8.0 for a consistent rounded appearance.
 class CustomButton extends StatelessWidget {
   const CustomButton({
     super.key,

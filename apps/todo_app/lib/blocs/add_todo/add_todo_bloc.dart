@@ -75,8 +75,9 @@ class AddTodoBloc extends Bloc<AddTodoEvent, AddTodoState> {
       case Error<bool>():
         emit(
           state.copyWith(
-              isLoading: false,
-              errorMessage: 'Unable to add To-Do, please try again.'),
+            isLoading: false,
+            errorMessage: 'Unable to add To-Do, please try again.',
+          ),
         );
         break;
     }

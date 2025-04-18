@@ -78,6 +78,28 @@ void main() {
           contains('Title and description cannot be empty'));
     });
 
+    test('toggleTodoCompletion toggles the completion status of a todo',
+        () async {
+      final todosJson = jsonEncode([
+        {
+          'id': '1',
+          'title': 'Test Todo',
+          'description': 'Test Description',
+          'isCompleted': false
+        }
+      ]);
+      when(() => mockSecureStorage.read(key: 'todos'))
+          .thenAnswer((_) async => todosJson);
+      when(() =>
+              mockSecureStorage.write(key: 'todos', value: any(named: 'value')))
+          .thenAnswer((_) async => true);
+
+      final result = await todoRepository.toggleTodoCompletion('1');
+
+      expect(result, isA<Ok<bool>>());
+      expect((result as Ok<bool>).value, isTrue);
+    });
+
     test('deleteTodo removes a todo successfully', () async {
       final todosJson = jsonEncode([
         {
